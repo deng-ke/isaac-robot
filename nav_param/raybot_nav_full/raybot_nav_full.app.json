@@ -1,0 +1,938 @@
+{
+  "name": "raybot_nav_full",
+  "modules": [
+    "zhongling",
+    "sensors:joystick",
+    "hokuyo_rosbridge:hokuyo_ros_bridge",
+    "navigation",
+    "navigation_behavior",
+    "planner",
+    "perception",
+    "communications",
+    "viewers",
+    "imu"
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "name": "obstacle_world",
+        "components": [
+          {
+            "name": "obstacle_world",
+            "type": "isaac::navigation::ObstacleWorld"
+          }
+        ]
+      },
+      {
+        "name": "control",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.planner.DifferentialBaseControl",
+            "type": "isaac::planner::DifferentialBaseControl"
+          }
+        ]
+      },
+      {
+        "name": "db",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          }
+        ]
+      },
+      {
+        "name": "global_localization",
+        "disable_automatic_start": true,
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "grid_search_localizer",
+            "type": "isaac::navigation::GridSearchLocalizer"
+          }
+        ]
+      },
+      {
+        "name": "global_plan",
+        "disable_automatic_start": true,
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.planner.GlobalPlanner",
+            "type": "isaac::planner::GlobalPlanner"
+          },
+          {
+            "name": "isaac.navigation.OccupancyToBinaryMap",
+            "type": "isaac::navigation::OccupancyToBinaryMap"
+          },
+          {
+            "name": "isaac.navigation.BinaryToDistanceMap",
+            "type": "isaac::navigation::BinaryToDistanceMap"
+          }
+        ]
+      },
+      {
+        "name": "go_to",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.GoTo",
+            "type": "isaac::navigation::GoTo"
+          }
+        ]
+      },
+      {
+        "name": "local_map",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.LocalMap",
+            "type": "isaac::navigation::LocalMap"
+          },
+          {
+            "name": "isaac.navigation.OccupancyToBinaryMap",
+            "type": "isaac::navigation::OccupancyToBinaryMap"
+          },
+          {
+            "name": "isaac.navigation.BinaryToDistanceMap",
+            "type": "isaac::navigation::BinaryToDistanceMap"
+          }
+        ]
+      },
+      {
+        "name": "localization_evaluation",
+        "components": [
+          {
+            "name": "isaac.navigation.LocalizationEvaluation",
+            "type": "isaac::navigation::LocalizationEvaluation"
+          }
+        ]
+      },
+      {
+        "name": "lqr",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.planner.DifferentialBaseLqrPlanner",
+            "type": "isaac::planner::DifferentialBaseLqrPlanner"
+          }
+        ]
+      },
+      {
+        "name": "patrol",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.Patrol",
+            "type": "isaac::navigation::Patrol"
+          }
+        ]
+      },
+      {
+        "name": "pose_as_goal",
+        "start_order": -100,
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.PoseAsGoal",
+            "type": "isaac::navigation::PoseAsGoal"
+          },
+          {
+            "name": "pose_as_goal_frame",
+            "type": "isaac::alice::PoseInitializer"
+          }
+        ]
+      },
+      {
+        "name": "robot_pose_initializer",
+        "components": [
+          {
+            "name": "initial_pose",
+            "type": "isaac::alice::PoseInitializer"
+          }
+        ]
+      },
+      {
+        "name": "scan_localization",
+        "disable_automatic_start": true,
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.ParticleFilterLocalization",
+            "type": "isaac::navigation::ParticleFilterLocalization"
+          },
+          {
+            "name": "flatscan_viewer",
+            "type": "isaac::navigation::FlatscanViewer"
+          },
+          {
+            "name": "robot_viewer",
+            "type": "isaac::navigation::RobotViewer"
+          }
+        ]
+      },
+      {
+        "name": "zl_imu_odometry",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.DifferentialBaseWheelImuOdometry",
+            "type": "isaac::navigation::DifferentialBaseWheelImuOdometry"
+          }
+        ]
+      },
+      {
+        "name": "zhongling_odometry",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.DifferentialBaseOdometry",
+            "type": "isaac::navigation::DifferentialBaseOdometry"
+          }
+        ]
+      },
+      {
+        "name": "shared_robot_model",
+        "components": [
+          {
+            "name": "RangeScanModel",
+            "type": "isaac::navigation::RangeScanModelFlatloc"
+          },
+          {
+            "name": "DifferentialBaseModel",
+            "type": "isaac::planner::DifferentialBaseModel"
+          }
+        ]
+      },
+      {
+        "name": "HokuyoRosBridge",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.rosbridge.HokuyoRosBridge",
+            "type": "isaac::rosbridge::HokuyoRosBridge"
+          },
+          {
+            "name": "lidar_pose",
+            "type": "isaac::alice::PoseInitializer"
+          }
+        ]
+      },
+      {
+        "name": "zhongling_rmp",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.ZhonglingRmpDriver",
+            "type": "isaac::ZhonglingRmpDriver"
+          },
+          {
+            "name": "isaac.alice.Failsafe",
+            "type": "isaac::alice::Failsafe"
+          }
+        ]
+      },
+      {
+        "name": "waypoint_as_goal",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.MapWaypointAsGoal",
+            "type": "isaac::navigation::MapWaypointAsGoal"
+          }
+        ]
+      },
+      {
+        "name": "localize",
+        "components": [
+          {
+            "name": "isaac.navigation.LocalizeBehavior",
+            "type": "isaac::navigation::LocalizeBehavior"
+          },
+          {
+            "name": "isaac.alice.Behavior",
+            "type": "isaac::alice::Behavior"
+          }
+        ]
+      },
+      {
+        "name": "goal_behavior",
+        "components": [
+          {
+            "name": "isaac.alice.Behavior",
+            "type": "isaac::alice::Behavior"
+          },
+          {
+            "name": "isaac.navigation.SelectorBehavior",
+            "type": "isaac::navigation::SelectorBehavior"
+          }
+        ]
+      },
+      {
+        "name": "map",
+        "components": [
+          {
+            "name": "isaac.map.Map",
+            "type": "isaac::map::Map"
+          },
+          {
+            "name": "map",
+            "type": "isaac::navigation::NavigationMap"
+          },
+          {
+            "name": "occupancy",
+            "type": "isaac::map::OccupancyGridMapLayer"
+          },
+          {
+            "name": "waypoints",
+            "type": "isaac::map::WaypointMapLayer"
+          },
+          {
+            "name": "restricted_area",
+            "type": "isaac::map::PolygonMapLayer"
+          }
+        ]
+      },
+      {
+        "name": "stop",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.planner.DifferentialBaseStop",
+            "type": "isaac::planner::DifferentialBaseStop"
+          }
+        ]
+      },
+      {
+        "name": "navigation_mode",
+        "components": [
+          {
+            "name": "isaac.navigation.GroupSelectorBehavior",
+            "type": "isaac::navigation::GroupSelectorBehavior"
+          },
+          {
+            "name": "isaac.alice.Behavior",
+            "type": "isaac::alice::Behavior"
+          }
+        ]
+      },
+      {
+        "name": "joystick",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.Joystick",
+            "type": "isaac::Joystick"
+          }
+        ]
+      },
+      {
+        "name": "diffbase_joystick",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.planner.DifferentialBaseControl",
+            "type": "isaac::planner::DifferentialBaseControl"
+          },
+          {
+            "name": "isaac.alice.FailsafeHeartbeat",
+            "type": "isaac::alice::FailsafeHeartbeat"
+          }
+        ]
+      },
+      {
+        "name": "virtual_gamepad_bridge",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "VirtualGamepadBridge",
+            "type": "isaac::navigation::VirtualGamepadBridge"
+          }
+        ]
+      },
+      {
+        "name": "navigation_behavior",
+        "start_order": 100,
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation_behavior",
+            "type": "isaac::navigation_behavior"
+          }
+        ]
+      },
+      {
+        "name": "imu",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "iio_bmi160",
+            "type": "isaac::imu::IioBmi160"
+          },
+          {
+            "name": "imu_corrector",
+            "type": "isaac::imu::ImuCorrector"
+          },
+          {
+            "name": "imu_pose",
+            "type": "isaac::alice::PoseInitializer"
+          }
+        ]
+      }
+    ],
+
+
+
+    "edges": [
+      {
+        "source": "HokuyoRosBridge/isaac.rosbridge.HokuyoRosBridge/scan",
+        "target": "global_localization/grid_search_localizer/flatscan"
+      },
+      {
+        "source": "HokuyoRosBridge/isaac.rosbridge.HokuyoRosBridge/scan",
+        "target": "scan_localization/isaac.navigation.ParticleFilterLocalization/flatscan"
+      },
+      {
+        "source": "HokuyoRosBridge/isaac.rosbridge.HokuyoRosBridge/scan",
+        "target": "scan_localization/flatscan_viewer/flatscan"
+      },
+      {
+        "source": "HokuyoRosBridge/isaac.rosbridge.HokuyoRosBridge/scan",
+        "target": "local_map/isaac.navigation.LocalMap/flatscan"
+      },
+
+
+
+      {
+        "source": "local_map/isaac.navigation.LocalMap/local_map",
+        "target": "local_map/isaac.navigation.OccupancyToBinaryMap/occupancy_map"
+      },
+      {
+        "source": "local_map/isaac.navigation.OccupancyToBinaryMap/binary_map",
+        "target": "local_map/isaac.navigation.BinaryToDistanceMap/binary_map"
+      },
+      {
+        "source": "local_map/isaac.navigation.LocalMap/local_map",
+        "target": "global_plan/isaac.planner.GlobalPlanner/local_map"
+      },
+      {
+        "source": "local_map/isaac.navigation.LocalMap/local_map",
+        "target": "global_plan/isaac.navigation.OccupancyToBinaryMap/occupancy_map"
+      },
+      {
+        "source": "global_plan/isaac.planner.GlobalPlanner/plan",
+        "target": "lqr/isaac.planner.DifferentialBaseLqrPlanner/global_plan"
+      },
+      {
+        "source": "local_map/isaac.navigation.LocalMap/local_map",
+        "target": "lqr/isaac.planner.DifferentialBaseLqrPlanner/local_map"
+      },
+      {
+        "source": "lqr/isaac.planner.DifferentialBaseLqrPlanner/plan",
+        "target": "control/isaac.planner.DifferentialBaseControl/plan"
+      },
+      {
+        "source": "stop/isaac.planner.DifferentialBaseStop/cmd",
+        "target": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_cmd"
+      },
+      {
+        "source": "control/isaac.planner.DifferentialBaseControl/cmd",
+        "target": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_cmd"
+      },
+      {
+        "source": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_state",
+        "target": "zl_imu_odometry/isaac.navigation.DifferentialBaseWheelImuOdometry/state"
+      },
+      {
+        "source": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_state",
+        "target": "zhongling_odometry/isaac.navigation.DifferentialBaseOdometry/state"
+      },
+      {
+        "source": "zl_imu_odometry/isaac.navigation.DifferentialBaseWheelImuOdometry/odometry",
+        "target": "lqr/isaac.planner.DifferentialBaseLqrPlanner/odometry"
+      },
+
+
+
+      {
+        "source": "go_to/isaac.navigation.GoTo/goal_out",
+        "target": "global_plan/isaac.planner.GlobalPlanner/goal"
+      },
+      {
+        "source": "global_plan/isaac.navigation.OccupancyToBinaryMap/binary_map",
+        "target": "global_plan/isaac.navigation.BinaryToDistanceMap/binary_map"
+      },
+      {
+        "source": "waypoint_as_goal/isaac.navigation.MapWaypointAsGoal/goal",
+        "target": "go_to/isaac.navigation.GoTo/goal_in"
+      },
+      {
+        "source": "pose_as_goal/isaac.navigation.PoseAsGoal/goal",
+        "target": "go_to/isaac.navigation.GoTo/goal_in"
+      },
+      {
+        "source": "pose_as_goal/isaac.navigation.PoseAsGoal/goal",
+        "target": "navigation_behavior/isaac.navigation_behavior/pose"
+      },
+      {
+        "source": "patrol/isaac.navigation.Patrol/goal",
+        "target": "go_to/isaac.navigation.GoTo/goal_in"
+      },
+      {
+        "source": "imu/iio_bmi160/imu_raw",
+        "target": "imu/imu_corrector/raw"
+      },      
+      {
+        "source": "imu/imu_corrector/corrected",
+        "target": "zl_imu_odometry/isaac.navigation.DifferentialBaseWheelImuOdometry/imu"
+      }
+    ]
+  },
+
+
+
+
+
+  "config": {
+    "imu": {
+      "iio_bmi160": {
+        "i2c_device_id": 1,
+        "tick_period": "100Hz"
+      },
+      "imu_corrector": {
+        "tick_period": "100Hz",
+        "calibration_file": "/home/rayrobot/deploy/dk/raybot_imucalibration-pkg/apps/raybot/raybot_imu/imu_calibration.out.json"
+      },
+      "imu_pose": {
+        "lhs_frame": "robot",
+        "rhs_frame": "imu",
+        "pose": [1, 0.0, 0.0, 0.0, 0.0034, 0.0, 0.155]
+      }
+    },
+    "navigation_behavior": {
+      "isaac.navigation_behavior": {
+        "tick_period": "10Hz"
+       }
+    },
+    "stop": {
+      "isaac.planner.DifferentialBaseStop": {
+        "tick_period": "100Hz"
+      }
+    },
+    "navigation_mode": {
+      "isaac.alice.Behavior": {
+        "aliases": [
+          "global_plan",
+          "lqr",
+          "control",
+          "stop"
+        ],
+        "nodes": [
+          "global_plan",
+          "lqr",
+          "control",
+          "stop"
+        ]
+      },
+      "isaac.navigation.GroupSelectorBehavior": {
+        "behavior_map": {
+          "navigate": [
+            "global_plan",
+            "lqr",
+            "control"
+          ],
+          "stop": [
+            "stop"
+          ]
+        },
+        "desired_behavior": "navigate",
+        "tick_period": "50ms"
+      }
+    },
+    "control": {
+      "isaac.planner.DifferentialBaseControl": {
+        "use_tick_time": true,
+        "tick_period": "100Hz"
+      }
+    },
+    "global_localization": {
+      "grid_search_localizer": {
+        "robot_radius": 0.8,
+        "tick_period": "250ms"
+      }
+    },
+    "global_plan": {
+      "isaac.navigation.OccupancyToBinaryMap": {
+        "is_optimistic": true,
+        "mean_threshold": 196,
+        "stdandard_deviation_threshold": 64
+      },
+      "isaac.navigation.BinaryToDistanceMap": {
+        "local_map_name": "global_plan_local_map",
+        "compute_distance_inside": false,
+        "blur_factor": 0,
+        "max_distance": 2.0
+      },
+      "isaac.planner.GlobalPlanner": {
+        "local_map_name": "global_plan_local_map",
+        "tick_period": "1Hz"
+      }
+    },
+    "go_to": {
+      "isaac.navigation.GoTo": {
+        "var_rx_delta_pos": "global_plan/isaac.planner.GlobalPlanner/delta_p",
+        "var_rx_delta_rot": "global_plan/isaac.planner.GlobalPlanner/delta_q",
+        "var_rx_speed_pos": "zl_imu_odometry/isaac.navigation.DifferentialBaseWheelImuOdometry/speed_p",
+        "var_rx_speed_rot": "zl_imu_odometry/isaac.navigation.DifferentialBaseWheelImuOdometry/speed_q",
+        "tick_period": "100ms"
+      }
+    },
+    "goal_behavior": {
+      "isaac.alice.Behavior": {
+        "aliases": [
+          "waypoint",
+          "pose",
+          "patorl"
+        ],
+        "nodes": [
+          "waypoint_as_goal",
+          "pose_as_goal",
+          "patrol"
+        ]
+      },
+      "isaac.navigation.SelectorBehavior": {
+        "desired_behavior": "pose",
+        "tick_period": "50ms"
+      }
+    },
+    "localization_evaluation": {
+      "isaac.navigation.LocalizationEvaluation": {
+        "tick_period": "20Hz"
+      }
+    },
+    "localize": {
+      "isaac.alice.Behavior": {
+        "aliases": [
+          "global_loc",
+          "local_loc",
+          "navigate"
+        ],
+        "nodes": [
+          "global_localization",
+          "scan_localization",
+          "navigation_mode"
+        ]
+      },
+      "isaac.navigation.LocalizeBehavior": {
+        "tick_period": "50ms"
+      }
+    },
+    "local_map": {
+      "isaac.navigation.OccupancyToBinaryMap": {
+        "mean_threshold": 32,
+        "stdandard_deviation_threshold": 0
+      },
+      "isaac.navigation.BinaryToDistanceMap": {
+        "local_map_name": "local_map",
+        "compute_distance_inside": true,
+        "blur_factor": 3,
+        "max_distance": 5.0
+      }
+    },
+    "lqr": {
+      "isaac.planner.DifferentialBaseLqrPlanner": {
+        "max_speed": 0.5,
+        "min_speed": -0.0,
+        "num_controls": 50,
+        "min_distance": 0.1,
+        "local_maps": ["local_map"],
+        "tick_period": "100Hz"
+      }
+    },
+    "patrol": {
+      "isaac.navigation.Patrol": {
+        "var_rx_has_arrived": "go_to/isaac.navigation.GoTo/has_arrived",
+        "var_rx_is_stationary": "go_to/isaac.navigation.GoTo/is_stationary",
+        "tick_period": "250ms"
+      }
+    },
+    "pose_as_goal": {
+      "isaac.navigation.PoseAsGoal": {
+        "goal_frame": "pose_as_goal",
+        "reference_frame": "world",
+        "tick_period": "250ms"
+      },
+      "pose_as_goal_frame": {
+        "lhs_frame": "world",
+        "rhs_frame": "pose_as_goal",
+        "pose": [1.0, 0.0, 0.0, 0.0, 10.0, 10.0, 0.0],
+        "attach_interactive_marker": true
+      }
+    },
+    "robot_pose_initializer": {
+      "initial_pose": {
+        "lhs_frame": "world",
+        "rhs_frame": "robot_init",
+        "pose": [8, 8.0, 8.0, 0, 0, 0.0, 0.0],
+        "attach_interactive_marker": true
+      }
+    },
+    "scan_localization": {
+      "robot_viewer": {
+        "tick_period": "50Hz"
+      },
+      "isaac.navigation.ParticleFilterLocalization": {
+        "num_particles": 1000,
+        "reseed_particles": "true"
+      }
+    },
+    "zhongling_rmp": {
+      "isaac.ZhonglingRmpDriver": {
+        "tick_period": "20ms"
+      },
+      "isaac.alice.Failsafe": {
+        "name": "zl"
+      }
+    },
+    "zl_imu_odometry": {
+      "isaac.navigation.DifferentialBaseWheelImuOdometry": {
+        "weight_imu_angular_speed": 0,
+        "weight_imu_acceleration": 0,
+        "tick_period": "100Hz"
+      }
+    },
+    "zhongling_odometry": {
+      "isaac.navigation.DifferentialBaseOdometry": {
+        "tick_period": "100Hz"
+      }
+    },
+    "HokuyoRosBridge": {
+      "isaac.rosbridge.HokuyoRosBridge": {
+        "tick_period": "40Hz"
+      },
+      "lidar_pose": {
+        "lhs_frame": "robot",
+        "rhs_frame": "lidar",
+        "pose": [1, 0.0, 0.0, 0.0, 0.0671, 0.0, 0.1659]
+      }
+    },
+    "waypoint_as_goal": {
+      "isaac.navigation.MapWaypointAsGoal": {
+        "map_layer": "map/waypoints",
+        "tick_period": "250ms"
+      }
+    },
+    "shared_robot_model": {
+      "DifferentialBaseModel": {
+        "robot_radius": 0.5,
+        "base_length": 0.376,
+        "wheel_radius": 0.085
+      },
+      "RangeScanModel": {
+        "invalid_range_threshold": 1.0
+      }
+    },
+    "diffbase_joystick": {
+      "isaac.alice.FailsafeHeartbeat": {
+        "interval": 0.25,
+        "failsafe_name": "zl",
+        "heartbeat_name": "deadman_switch"
+      },
+      "isaac.planner.DifferentialBaseControl": {
+        "tick_period": "10ms"
+      }
+    },
+    "virtual_gamepad_bridge": {
+      "VirtualGamepadBridge": {
+        "tick_period": "100ms"
+      }
+    },
+    "map": {
+      "occupancy": {
+        "cell_size": 0.05,
+        "filename": "/home/rayrobot/carto_maps/0701/map.png"
+      },
+      "waypoints": {
+        "vis_cell_size": 0.1,
+        "waypoints": {},
+        "tick_period": "1.0"
+      },
+      "restricted_area": {
+        "polygons": {},
+        "tick_period": "1.0"
+      }  
+    },
+    "websight": {
+      "WebsightServer": {
+        "port": 3000,
+        "ui_config": {
+          "windows": {
+            "raybot_nav_full - Local View": {
+              "channels": [
+                {
+                  "name": "raybot_nav_full/local_map/isaac.navigation.LocalMap/local_map"
+                },
+                {
+                  "name": "raybot_nav_full/global_plan/isaac.planner.GlobalPlanner/target"
+                },
+                {
+                  "name": "raybot_nav_full/global_plan/isaac.planner.GlobalPlanner/path"
+                },
+                {
+                  "active": false,
+                  "name": "raybot_nav_full/scan_localization/robot_viewer/trail"
+                },
+                {
+                  "name": "raybot_nav_full/scan_localization/robot_viewer/robot"
+                },
+                {
+                  "name": "raybot_nav_full/lqr/isaac.planner.DifferentialBaseLqrPlanner/plan"
+                }
+              ],
+              "dims": {
+                "height": 256,
+                "width": 256
+              },
+              "renderer": "2d"
+            },
+            "raybot_nav_full - Map View": {
+              "channels": [
+                {
+                  "name": "raybot_nav_full/map/occupancy/map"
+                },
+                {
+                  "name": "raybot_nav_full/map/waypoints/waypoints"
+                },
+                {
+                  "name": "raybot_nav_full/local_map/isaac.navigation.LocalMap/local_map"
+                },
+                {
+                  "name": "raybot_nav_full/lqr/isaac.planner.LqrPlanner/plan"
+                },
+                {
+                  "active": false,
+                  "name": "raybot_nav_full/global_plan/isaac.planner.GlobalPlanner/graph"
+                },
+                {
+                  "active": false,
+                  "name": "raybot_nav_full/map/restricted_area/restricted_area"
+                },
+                {
+                  "active": false,
+                  "name": "raybot_nav_full/global_localization/grid_search_localizer/error"
+                },
+                {
+                  "name": "raybot_nav_full/scan_localization/flatscan_viewer/beam_lines"
+                },
+                {
+                  "name": "raybot_nav_full/scan_localization/flatscan_viewer/beam_endpoints"
+                },
+                {
+                  "name": "raybot_nav_full/global_plan/isaac.planner.GlobalPlanner/target"
+                },
+                {
+                  "name": "raybot_nav_full/global_plan/isaac.planner.GlobalPlanner/path"
+                },
+                {
+                  "active": false,
+                  "name": "raybot_nav_full/scan_localization/isaac.navigation.ParticleFilterLocalization/particles"
+                },
+                {
+                  "name": "raybot_nav_full/scan_localization/robot_viewer/robot"
+                }
+              ],
+              "dims": {
+                "height": 548,
+                "width": 432
+              },
+              "renderer": "2d"
+            },
+            "raybot_nav_full - Speed profile": {
+              "channels": [
+                {
+                  "name": "raybot_nav_full/control/isaac.planner.DifferentialBaseControl/controller.commanded_linear_speed"
+                },
+                {
+                  "name": "raybot_nav_full/control/isaac.planner.DifferentialBaseControl/controller.desired_linear_speed"
+                },
+                {
+                  "name": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_state"
+                },
+                {
+                  "name": "raybot_nav_full/zhongling_odometry/isaac.navigation.DifferentialBaseOdometry/odometry"
+                }
+              ],
+              "dims": {
+                "height": 480,
+                "width": 640
+              },
+              "renderer": "plot"
+            }
+          }
+        },
+        "webroot": "packages/sight/webroot"
+      }
+    }
+  }
+}

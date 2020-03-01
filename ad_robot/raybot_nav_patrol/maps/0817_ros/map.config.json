@@ -1,0 +1,17 @@
+{
+  "map": {
+    "occupancy": {
+      "cell_size": 0.05,
+      "filename": "apps/raybot/raybot_nav/maps/0817_ros/33.png"
+    },
+    "waypoints": {
+      "vis_cell_size": 0.1,
+      "waypoints": {},
+      "tick_period": "1.0"
+    },
+    "restricted_area": {
+      "polygons": {},
+      "tick_period": "1.0"
+    }
+  }
+}

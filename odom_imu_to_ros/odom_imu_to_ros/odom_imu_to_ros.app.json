@@ -1,0 +1,248 @@
+{
+  "name": "odom_imu_to_ros",
+  "modules": [
+    "OdomImu2Ros",
+    "navigation",
+    "planner",
+    "zhongling",
+    "sensors:joystick",
+    "imu"
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "name": "joystick",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.Joystick",
+            "type": "isaac::Joystick"
+          }
+        ]
+      },
+      {
+        "name": "diffbase_joystick",
+        "start_order": -250,
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.RobotRemoteControl",
+            "type": "isaac::navigation::RobotRemoteControl"
+          },
+          {
+            "name": "isaac.alice.FailsafeHeartbeat",
+            "type": "isaac::alice::FailsafeHeartbeat"
+          }
+        ]
+      },
+      {
+        "name": "control",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.planner.DifferentialBaseControl",
+            "type": "isaac::planner::DifferentialBaseControl"
+          }
+        ]
+      },
+      {
+        "name": "virtual_gamepad_bridge",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "VirtualGamepadBridge",
+            "type": "isaac::navigation::VirtualGamepadBridge"
+          }
+        ]
+      },
+      {
+        "name": "zhongling_rmp",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.ZhonglingRmpDriver",
+            "type": "isaac::ZhonglingRmpDriver"
+          },
+          {
+            "name": "isaac.alice.Failsafe",
+            "type": "isaac::alice::Failsafe"
+          }
+        ]
+      },
+      {
+        "name": "zhongling_odometry",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.navigation.DifferentialBaseOdometry",
+            "type": "isaac::navigation::DifferentialBaseOdometry"
+          }
+        ]
+      },
+      {
+        "name": "odom_imu_to_ros",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "isaac.rosbridge.OdomImu2Ros",
+            "type": "isaac::rosbridge::OdomImu2Ros"
+          }
+        ]
+      },
+      {
+        "name": "imu",
+        "components": [
+          {
+            "name": "message_ledger",
+            "type": "isaac::alice::MessageLedger"
+          },
+          {
+            "name": "iio_bmi160",
+            "type": "isaac::imu::IioBmi160"
+          },
+          {
+            "name": "imu_corrector",
+            "type": "isaac::imu::ImuCorrector"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_state",
+        "target": "zhongling_odometry/isaac.navigation.DifferentialBaseOdometry/state"
+      },
+      {
+        "source": "joystick/isaac.Joystick/js_state",
+        "target": "diffbase_joystick/isaac.navigation.RobotRemoteControl/js_state"
+      },
+      {
+        "source": "diffbase_joystick/isaac.navigation.RobotRemoteControl/cmd",
+        "target": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_cmd"
+      },
+      {
+        "source": "control/isaac.planner.DifferentialBaseControl/cmd",
+        "target": "diffbase_joystick/isaac.navigation.RobotRemoteControl/ctrl"
+      },
+      {
+        "source": "virtual_gamepad_bridge/VirtualGamepadBridge/joystick",
+        "target": "diffbase_joystick/isaac.navigation.RobotRemoteControl/js_state"
+      },
+      {
+        "source": "virtual_gamepad_bridge/VirtualGamepadBridge/joystick",
+        "target": "zhongling_rmp/isaac.ZhonglingRmpDriver/zl_ctrl"
+      },
+      {
+        "source": "websight/WebsightServer/virtual_gamepad",
+        "target": "virtual_gamepad_bridge/VirtualGamepadBridge/request"
+      },
+      {
+        "source": "virtual_gamepad_bridge/VirtualGamepadBridge/reply",
+        "target": "websight/WebsightServer/virtual_gamepad_reply"
+      },
+      {
+        "source": "zhongling_odometry/isaac.navigation.DifferentialBaseOdometry/odometry",
+        "target": "odom_imu_to_ros/isaac.rosbridge.OdomImu2Ros/in_odom"
+      },
+      {
+        "source": "imu/iio_bmi160/imu_raw",
+        "target": "imu/imu_corrector/raw"
+      },
+      {
+        "source": "imu/imu_corrector/corrected",
+        "target": "odom_imu_to_ros/isaac.rosbridge.OdomImu2Ros/in_imu"
+      }
+    ]
+  },
+
+
+
+
+
+
+  "config": {
+    "odom_imu_to_ros": {
+      "isaac.rosbridge.OdomImu2Ros": {
+        "tick_period": "100Hz"
+      }
+    },
+    "control": {
+      "isaac.planner.DifferentialBaseControl": {
+        "use_tick_time": true,
+        "tick_period": "100Hz",
+        "manual_mode_channel": "diffbase_joystick/isaac.navigation.RobotRemoteControl/manual_mode"
+      }
+    },
+    "diffbase_joystick": {
+      "isaac.alice.FailsafeHeartbeat": {
+        "interval": 0.25,
+        "failsafe_name": "zl",
+        "heartbeat_name": "deadman_switch"
+      },
+      "isaac.navigation.RobotRemoteControl": {
+        "tick_period": "10ms"
+      }
+    },
+    "virtual_gamepad_bridge": {
+      "VirtualGamepadBridge": {
+        "tick_period": "100ms"
+      }
+    },
+
+    "zhongling_rmp": {
+      "isaac.ZhonglingRmpDriver": {
+        "tick_period": "20ms"
+      },
+      "isaac.alice.Failsafe": {
+        "name": "zl"
+      }
+    },
+    "zhongling_odometry": {
+      "isaac.navigation.DifferentialBaseOdometry": {
+        "tick_period": "100Hz"
+      }
+    },
+    "imu": {
+      "iio_bmi160": {
+        "i2c_device_id": 1,
+        "tick_period": "100Hz"
+      },
+      "imu_corrector": {
+        "tick_period": "100Hz",
+        "calibration_file": "/home/rayrobot/deploy/dk/raybot_imucalibration-pkg/apps/raybot/raybot_imu/imu_calibration.out.json"
+      }
+    },
+    "websight": {
+      "WebsightServer": {
+        "webroot": "packages/sight/webroot",
+        "assetroot": "../isaac_assets",
+        "port": 3000,
+        "ui_config": {
+          "windows": {
+          }
+        }
+      }
+    }
+  }
+}

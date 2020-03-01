@@ -1,0 +1,777 @@
+<robot name="raybot">
+  <link name="base_footprint">
+    <!-- inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.0002" />
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.001 0.001 0.001" />
+      </geometry>
+      <material name=""> <color rgba="1 1 1 1" /> </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+              xyz="-0.0143263366885265 0.000627247163478381 0.171792624341329"
+        rpy="0 0 0" />
+      <mass
+        value="17.6955895950683" />
+      <inertia
+        ixx="0.83051019060647"
+        ixy="-0.00113821949170566"
+        ixz="-0.0655115659342145"
+        iyy="1.15979291401644"
+        iyz="0.00104164878701389"
+        izz="0.37396840308188" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.529411764705882 0.549019607843137 0.549019607843137 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="base_footprint_joint" type="continuous">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_footprint" />
+    <child link="base_link" />
+  </joint>
+
+  <link
+    name="base_l_wheel_link">
+    <inertial>
+      <origin
+        xyz="-3.89185717544017E-08 -0.000140570616109781 -1.51063335659951E-07"
+        rpy="0 0 0" />
+      <mass
+        value="1.43017656624007" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_l_wheel_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.43921568627451 0.43921568627451 0.43921568627451 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_l_wheel_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="base_l_wheel_joint"
+    type="fixed">
+    <origin
+      xyz="-0.197 0.286 -0.042562"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_l_wheel_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="base_r_wheel_link">
+    <inertial>
+      <origin
+        xyz="3.89185717572793E-08 0.000140570616109781 -1.5106333566689E-07"
+        rpy="0 0 0" />
+      <mass
+        value="1.43017656624007" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_wheel_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.43921568627451 0.43921568627451 0.43921568627451 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_wheel_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="base_r_wheel_joint"
+    type="fixed">
+    <origin
+      xyz="-0.197 -0.286 -0.042562"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_r_wheel_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="gyro_link">
+    <inertial>
+      <origin
+        xyz="-1.03548445011036E-07 3.46343714207103E-05 0.0113079571351998"
+        rpy="0 0 0" />
+      <mass
+        value="0.251848872004252" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/gyro_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.2 0.2 0.2 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/gyro_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="gyro_joint"
+    type="fixed">
+    <origin
+      xyz="-0.197 5E-05 -0.0085"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="gyro_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="laser">
+    <inertial>
+      <origin
+        xyz="-0.000268699219537927 0.000252725288736464 -0.00614126647856833"
+        rpy="0 0 0" />
+      <mass
+        value="0.0457566473646556" />
+      <inertia
+        ixx="1.21864909731732E-05"
+        ixy="-2.89204785363876E-07"
+        ixz="3.71399335205594E-07"
+        iyy="1.18703149810334E-05"
+        iyz="2.01158348301941E-07"
+        izz="2.59637484612055E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/laser.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/laser.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="laser_joint"
+    type="fixed">
+    <origin
+      xyz="0.2 0. 0.72"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="laser" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+  <link
+    name="laser_obs">
+    <inertial>
+      <origin
+        xyz="-0.000268699219537927 0.000252725288736464 -0.00614126647856833"
+        rpy="0 0 0" />
+      <mass
+        value="0.0457566473646556" />
+      <inertia
+        ixx="1.21864909731732E-05"
+        ixy="-2.89204785363876E-07"
+        ixz="3.71399335205594E-07"
+        iyy="1.18703149810334E-05"
+        iyz="2.01158348301941E-07"
+        izz="2.59637484612055E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/laser.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/laser.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="laser_obs_joint"
+    type="fixed">
+    <origin
+      xyz="0.28424 0. 0."
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="laser_obs" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+  <link
+    name="camera_link">
+    <inertial>
+      <origin
+        xyz="0.016497432085295 -2.14929031366331E-10 1.60977127017237E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.16189477228834" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/sm_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/sm_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="sm_joint"
+    type="fixed">
+    <origin
+      xyz="0.29875 0 0.6206"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="camera_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rgbd_link">
+    <inertial>
+      <origin
+        xyz="0.0200043686999727 1.47878400063445E-16 8.28617646997376E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.190025834664389" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/rgbd_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/rgbd_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rgbd_joint"
+    type="fixed">
+    <origin
+      xyz="-0.305 -0.032 0.7106"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rgbd_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+
+
+
+
+
+
+
+
+
+
+  <link
+    name="base_l_range_link">
+    <inertial>
+      <origin
+        xyz="-0.00525932647848866 0.00016009346528327 0.000243458124226274"
+        rpy="0 0 0" />
+      <mass
+        value="0.00697309781940306" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_l_range_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_l_range_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint
+    name="base_l_range_joint"
+    type="fixed">
+    <origin
+      xyz="-0.2738 0.125 -0.032"
+      rpy="0 0 3.1415926" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_l_range_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  
+  <link
+    name="base_r_range_link">
+    <inertial>
+      <origin
+        xyz="-0.00525932647848866 0.000160093465283256 0.000243458124226281"
+        rpy="0 0 0" />
+      <mass
+        value="0.00697309781940306" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_range_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_range_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint
+    name="base_r_range_joint"
+    type="fixed">
+    <origin
+      xyz="-0.273799999999998 -0.125000000000003 -0.0320000000000025"
+      rpy="0 0 3.1415926" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_r_range_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <link
+    name="base_lf_range_link">
+    <inertial>
+      <origin
+        xyz="-0.00525932647848866 0.00016009346528327 0.000243458124226274"
+        rpy="0 0 0" />
+      <mass
+        value="0.00697309781940306" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_l_range_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_l_range_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint
+    name="base_lf_range_joint"
+    type="fixed">
+    <origin
+      xyz="0.215 0.21 -0.042562"
+      rpy="0 0 1.5707963" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_lf_range_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <link
+    name="base_rf_range_link">
+    <inertial>
+      <origin
+        xyz="-0.00525932647848866 0.00016009346528327 0.000243458124226274"
+        rpy="0 0 0" />
+      <mass
+        value="0.00697309781940306" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_range_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_range_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint
+    name="base_rf_range_joint"
+    type="fixed">
+    <origin
+      xyz="0.215 -0.21 -0.042562"
+      rpy="0 0 -1.5707963" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_rf_range_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <link
+    name="base_f_range_link">
+    <inertial>
+      <origin
+        xyz="-0.00525932647848866 0.00016009346528327 0.000243458124226274"
+        rpy="0 0 0" />
+      <mass
+        value="0.00697309781940306" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_range_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://raybot1g_description/meshes/base_r_range_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint
+    name="base_f_range_joint"
+    type="fixed">
+    <origin
+      xyz="0.325 0 -0.042562"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_f_range_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <link
+    name="camera_color_optical_frame">
+    <inertial>
+      <origin
+        xyz="0.0200043686999727 1.47878400063445E-16 8.28617646997376E-06"
+        rpy="0 0 0" />
+      <mass value="0.190025834664389" />
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+  <joint name="depthimage_joint" type="fixed">
+  <origin xyz="-0.305 0 0.7106" rpy="1.5707926 3.1415926 -1.5707926" />
+    <parent link="base_link" />
+    <child link="camera_color_optical_frame" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+    <link name="astra_fake_laser">
+    <inertial>
+      <origin
+        xyz="0.0200043686999727 1.47878400063445E-16 8.28617646997376E-06"
+        rpy="0 0 0" />
+      <mass value="0.190025834664389" />
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+  <joint name="fake_laser_joint" type="fixed">
+  <origin xyz="-0.305 0 0.7106" rpy="0 0 3.1415926" />
+    <parent link="base_link" />
+    <child link="astra_fake_laser" />
+    <axis xyz="0 0 0" />
+  </joint>
+
+</robot>
