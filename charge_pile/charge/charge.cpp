@@ -12,12 +12,15 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <termios.h>
+#include "engine/gems/algorithm/string_utils.hpp"
+
 using namespace std;
 
 
 /*machine-state and IR-data*/
 namespace isaac {
   namespace {
+    constexpr char kStateChargeMessage[] = "kChargeMessage";
     constexpr char kStateReqCharge[] = "kReqCharge";
     constexpr char kStateGetDistance[] = "kGetDistance";
     constexpr char kStateSearchPile[] = "kSearchPile";
@@ -78,7 +81,7 @@ namespace isaac {
     auto msg = tx_charge_ctrl().initProto();
     auto _axes = msg.initAxes(2);
     _axes[0].setY(get_linear_speed());
-				_axes[0].setX(0);
+    _axes[0].setX(0);
     tx_charge_ctrl().publish();
     sleep(distance/get_linear_speed());
     setStop();
@@ -88,7 +91,7 @@ namespace isaac {
     auto msg = tx_charge_ctrl().initProto();
     auto _axes = msg.initAxes(2);
     _axes[0].setY(-get_linear_speed());
-				_axes[0].setX(0);
+    _axes[0].setX(0);
     tx_charge_ctrl().publish();
     sleep(distance/get_linear_speed());
     setStop();
@@ -105,7 +108,7 @@ namespace isaac {
       _axes[1].setX(-get_angular_speed()); //angular_speed
     }
     tx_charge_ctrl().publish();
-    sleep((1.29*3.14*degree/180)/get_angular_speed());
+    sleep((3.14*degree/180)/get_angular_speed());
     setStop();
   }
 
@@ -121,6 +124,28 @@ namespace isaac {
     }
     tx_charge_ctrl().publish();
   }
+
+#if 0
+  double charge::getDistance() {
+    //sleep(3);
+    if (rx_laser_scan().available()) {
+      const auto scan_proto = rx_laser_scan().getProto();
+      auto distance = scan_proto.getRanges();
+      double sum = 0;
+      int num = 0;
+      for(int i=300; i<700; i++) {
+        std::cout << i << ": " << distance[i] << std::endl;
+        if(distance[i]<1 && distance[i]>0.6) {
+          num++;
+          sum += distance[i];
+        }
+      }
+      std::cout << "_distance: " << sum/num << std::endl;
+      return sum/num;
+    }
+    return 0;
+  }
+#endif
 
 #if 0
   double charge::getDistance() {
@@ -141,7 +166,6 @@ namespace isaac {
 
 #if 1
   double charge::getDistance() {
-    sleep(3);
     if (rx_laser_scan().available()) {
       const auto scan_proto = rx_laser_scan().getProto();
       auto distance = scan_proto.getRanges();
@@ -157,9 +181,11 @@ namespace isaac {
               break;
             }
           }
-          std::cout << j << std::endl;
+          std::cout << "j: " << j << std::endl;
           if(j==get_angle_ranges()+1 && distance[i]<0.8 && sum<(get_angle_ranges()+1)*get_distance_threshold()) {
-            std::cout << i << std::endl;
+          //if(j==get_angle_ranges()+1) {
+            std::cout << "i: " << i << std::endl;
+            std::cout << "distance :" << distance[i]+sum/(get_angle_ranges()+1) << std::endl;
             return distance[i]+sum/(get_angle_ranges()+1);
           }
           else {
@@ -172,15 +198,15 @@ namespace isaac {
   }
 #endif
 
-  inline void navigation_behavior::switchToCtrl() {
+  inline void charge::switchToCtrl() {
     auto msg = tx_channel_switch().initProto();
-    msg.setX(2);
+    msg.setMessage("ctrl");
     tx_channel_switch().publish();
   }
 
-  inline void navigation_behavior::switchToCmd() {
+  inline void charge::switchToCmd() {
     auto msg = tx_channel_switch().initProto();
-    msg.setX(1);
+    msg.setMessage("cmd");
     tx_channel_switch().publish();
   }
 
@@ -212,7 +238,7 @@ namespace isaac {
     }
 #endif
     //sleep(1);
-    //machine_.tick();
+    machine_.tick();
     //readBatteryState();
     //for (int i=0; i<34; i++) {
     //  std::cout << hex << (unsigned int)(unsigned char)kBatteryBuffer[i] << std::endl;
@@ -239,6 +265,7 @@ namespace isaac {
 
   void charge::createStateMachine() {
     const std::vector<State> all_states = {
+      kStateChargeMessage,
       kStateReqCharge,
       kStateGetDistance,
       kStateSearchPile,
@@ -248,13 +275,30 @@ namespace isaac {
       kStateReSearch,
     };
     machine_.setToString([this] (const State& state) {return state;});
+    machine_.addState(kStateChargeMessage,
+        [this] {
+          std::cout << "wait to receive req-charge message" << std::endl;
+        },
+        [this] {
+          sleep(3);
+          //readBatteryState();
+          //for (int i=0; i<34; i++) {
+          //  std::cout << hex << (unsigned int)(unsigned char)kBatteryBuffer[i] << std::endl;
+          //}
+        },
+        [] {
+        }
+    );
     machine_.addState(kStateReqCharge,
         [this] {
           std::cout << "Request charging" << std::endl;
+          switchToCtrl();
           rotation(1);
         },
         [this] {
           infrared_.writeChars(kReqData, 5);
+          switchToCtrl();
+          rotation(1);
         },
         [] {
         }
@@ -262,29 +306,34 @@ namespace isaac {
     machine_.addState(kStateGetDistance,
         [this] {
           std::cout << "start to get distance" << std::endl;
-          rotation(0, 180);
-          sleep(3);
-          while(distance_<0.1) {
-            distance_ = getDistance();
-            //std::cout << "dengke: " << distance_ << std::endl;
-          }
-          rotation(1);
-          // clear serial buffer
-          tcflush(infrared_.fd_, TCIFLUSH);
-          std::cout << "distance: " << distance_ << std::endl;
+          switchToCtrl();
+          rotation(0, 280);
+          sleep(1);
+          setStop();
         },
-        [] {},
+        [this] {
+          if(distance_==0.0 || distance_==1) {
+            distance_ = getDistance();
+            std::cout << "distance: " << distance_ << std::endl;
+          }
+          else {
+            std::cout << "distance_: " << distance_ << std::endl;
+            rotation(1);
+          }
+        },
         [] {
         }
     );
     machine_.addState(kStateSearchPile,
         [this] {
           tcflush(infrared_.fd_, TCIFLUSH);
+          switchToCtrl();
           goBack(distance_ - get_robot_radius());
           std::cout << "Search Pile" << std::endl;
         },
         [] {},
         [this] {
+          switchToCtrl();
           setStop();
           tcflush(infrared_.fd_, TCIFLUSH);
           std::cout << "arrived at pile" << std::endl;
@@ -312,7 +361,16 @@ namespace isaac {
           std::cout << "y:" << pile_pose_[1] << ", ";
           std::cout << "theta:" << pile_pose_[2] << std::endl;
         },
-        [] {}, [] {}
+        [this] {
+          sleep(1);
+          tcflush(battery_.fd_, TCIFLUSH);
+          readBatteryState();
+          for (int i=0; i<34; i++) {
+            std::cout << hex << (unsigned int)(unsigned char)kBatteryBuffer[i] << std::endl;
+          }
+          std::cout << "-----------------------------------" << std::endl;
+        },
+        [] {}
     );
     machine_.addState(kStateFinishCharge,
         [this] {
@@ -329,19 +387,37 @@ namespace isaac {
     machine_.addState(kStateReSearch,
         [this] {
           tcflush(infrared_.fd_, TCIFLUSH);
+          switchToCtrl();
           goAhead(distance_ - get_robot_radius());
           std::cout << "Re-search Pile" << std::endl;
         },
         [] {}, [] {}
     );
+    machine_.addTransition(kStateChargeMessage, kStateReqCharge,
+        [this] {
+          if(rx_arrived_charge_pile().available()) {
+            auto proto = rx_arrived_charge_pile().getProto();
+            const std::string msg = proto.getMessage();
+            std::cout << "msg: " << msg << std::endl;
+            if(msg == "charge")
+              return true;
+            else
+              return false;
+          }
+          //return false;
+        },
+        [] {}
+    );
     machine_.addTransition(kStateReqCharge, kStateGetDistance,
         [this] {
-          //tcflush(infrared_.fd_, TCIFLUSH);
+          tcflush(infrared_.fd_, TCIFLUSH);
           infrared_.readChars(&kBuffer[0], 3);
           if (isEqualData(kSearchData)) {
-            sleep(1);
+            // search charge pile
+            //sleep(1);
+            switchToCtrl();
             setStop();
-            sleep(2);
+            sleep(1);
             resetBuffer();
             return true;
           }
@@ -352,15 +428,17 @@ namespace isaac {
     );
     machine_.addTransition(kStateGetDistance, kStateSearchPile,
         [this] {
+          resetBuffer();
+          tcflush(infrared_.fd_, TCIFLUSH);
           infrared_.readChars(&kBuffer[0], 3);
+          for(int i=0;i<3;i++) {
           std::cout << hex << (unsigned int)(unsigned char)kBuffer[0] << std::endl;
+          }
           if (isEqualData(kSearchData)) {
-            //sleep(2);
-            usleep(3000000);
+            // search charge pile
+            usleep(1200000);
+            switchToCtrl();
             setStop();
-            /*for (int i=0; i<3; i++) {
-              kBuffer[i] = 0x00;
-            }*/
             resetBuffer();
             sleep(2);
             return true;
@@ -378,6 +456,7 @@ namespace isaac {
     );
     machine_.addTransition(kStateHandshake, kStateCharging,
         [this] {
+          tcflush(infrared_.fd_, TCIFLUSH);
           infrared_.readChars(&kBuffer[0], 3);
           /*for(int i=0; i<3; i++) {
           //std::cout << kBuffer[i] << std::endl;
@@ -403,6 +482,7 @@ namespace isaac {
             #if 1 /*if no battery protocol*/
             int j = 30;
             do {
+              tcflush(infrared_.fd_, TCIFLUSH);
               infrared_.readChars(&kBuffer[0], 3);
               if (isEqualData(kFinData)) {
                 return true;
@@ -421,7 +501,7 @@ namespace isaac {
     machine_.addTransition(kStateCharging, kStateFinishCharge,
         [this] {
           //if(readBatteryState()) {
-          if(1) {
+          if(0) {
             return true;
           }
           else

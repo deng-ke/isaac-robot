@@ -23,28 +23,6 @@ namespace isaac {
       Vector3d getPilePose();
       void createStateMachine();
       void createMachine();
-      ISAAC_POSE2(world, robot);
-
-      // switch velocity channel to JoystickStateProto(ctrl)
-      inline void switchToCtrl();
-      // switch velocity channel to StateProto(cmd)
-      inline void switchToCmd();
-
-      ISAAC_PARAM(std::string, infrared_port, "/dev/ttyinfrared");
-      ISAAC_PARAM(int, infrared_baud, 9600);
-      ISAAC_PARAM(double, linear_speed, 0.8);
-      ISAAC_PARAM(double, angular_speed, 0.2);
-      ISAAC_PARAM(double, robot_radius, 0.5);
-      //start state of state_machine
-      ISAAC_PARAM(std::string, start_state, "kReqCharge");
-      //laser beam_lines in a certain ranges of angle(used to get distance)
-      ISAAC_PARAM(int, angle_ranges, 80);
-      //distance_threshold
-      ISAAC_PARAM(double, distance_threshold, 0.3);
-      //over handshake_time, handshake failed
-      ISAAC_PARAM(int, handshake_time, 30000);
-      ISAAC_PROTO_RX(FlatscanProto, laser_scan);
-      ISAAC_PROTO_TX(JoystickStateProto, charge_ctrl);
 
       /*infrared and battery*/
       inline void resetBuffer();
@@ -58,13 +36,42 @@ namespace isaac {
       void rotation(int direction, double degree);
       void rotation(int direction);
       double getDistance();
+      // switch velocity channel to JoystickStateProto(ctrl)
+      inline void switchToCtrl();
+      // switch velocity channel to StateProto(cmd)
+      inline void switchToCmd();
+
+      ISAAC_POSE2(world, robot);
+
+      ISAAC_PROTO_RX(FlatscanProto, laser_scan);
+      ISAAC_PROTO_TX(JoystickStateProto, charge_ctrl);
+      // receive form navigation_behavior
+      ISAAC_PROTO_RX(PingProto, arrived_charge_pile);
+      // while raybot is fully charged, send this message to navigation_behavior
+      ISAAC_PROTO_TX(PingProto, finish_charge);
+      // A switch for switching velocity channel between StateProto(cmd) and JoystickStateProto(ctrl)
+      ISAAC_PROTO_TX(PingProto, channel_switch);
+
+      ISAAC_PARAM(std::string, infrared_port, "/dev/ttyinfrared");
+      ISAAC_PARAM(int, infrared_baud, 9600);
+      ISAAC_PARAM(double, linear_speed, 0.3);
+      ISAAC_PARAM(double, angular_speed, 0.5);
+      ISAAC_PARAM(double, robot_radius, 0.12);
+      //start state of state_machine
+      ISAAC_PARAM(std::string, start_state, "kChargeMessage");
+      //laser beam_lines in a certain ranges of angle(used to get distance)
+      ISAAC_PARAM(int, angle_ranges, 80);
+      //distance_threshold
+      ISAAC_PARAM(double, distance_threshold, 0.3);
+      //over handshake_time, handshake failed
+      ISAAC_PARAM(int, handshake_time, 30000);
 
     private:
       using State = std::string;
       state_machine::StateMachine<State> machine_;
       isaac::Serial infrared_ = isaac::Serial("/dev/ttyTHS2", 9600);
-      isaac::Serial battery_ = isaac::Serial("/dev/ttyTHS1", 9600);
-      double distance_;
+      isaac::Serial battery_ = isaac::Serial("/dev/ttyUSB0", 9600);
+      double distance_ = 0;
       Vector3d pile_pose_;
       bool isOKHandshake_ = 1;
       int handshake_times_ = 0;

@@ -15,7 +15,6 @@ namespace isaac {
     static int tick_num = 0;
     constexpr char kSleepHelper[] = "wait_for_goal_stopwatch";
     constexpr char kDistanceUpdateHelper[] = "distance-update-helper";
-    constexpr double kDistanceUpdateInterval = 30.0;
     constexpr double kWaitBeforeCheckForArrival = 3.0;
 
     // state for navigation
@@ -23,46 +22,9 @@ namespace isaac {
     constexpr char kStateWaitForPose[] = "kWaitForPose";
     constexpr char kStateDriveToPose[] = "kDriveToPose";
     constexpr char kStateDriveToPile[] = "kDriveToPile";
-
-    // state for charge
-    constexpr char kStateReqCharge[] = "kReqCharge";
-    constexpr char kStateGetDistance[] = "kGetDistance";
-    constexpr char kStateSearchPile[] = "kSearchPile";
-    constexpr char kStateHandshake[] = "kHandShake";
-    constexpr char kStateCharging[] = "kCharging";
-    constexpr char kStateFinishCharge[] = "kFinishCharge";
-    constexpr char kStateReSearch[] = "kStateReSearch";
-
+    constexpr char kStateChargeMessage[] = "kChargeMessage";
   } //namespace
 
-  Vector5d navigation_behavior::getRobotPose() {
-    bool ok;
-    Vector5d robot_pose;
-    const Pose2d world_T_robot = get_world_T_robot(getTickTime(), ok);
-    if(ok) {
-     robot_pose[0] = world_T_robot.translation(0);
-     robot_pose[1] = world_T_robot.translation(1);
-     robot_pose[2] = world_T_robot.rotation.sin();
-     robot_pose[3] = world_T_robot.rotation.cos();
-     robot_pose[4] = world_T_robot.rotation.angle();
-    }
-    return robot_pose;
-  }
-
-  #if 0
-  void navigation_behavior::rotation(int direction) {
-    messages::DifferentialBaseControl msg;
-    msg.linear_speed() = 0.0;
-    if(direction == 0) {
-      msg.angular_speed() = 0.3;
-    }
-    else {
-      msg.angular_speed() = 0.3;
-    }
-    ToProto(msg, tx_relocalize_cmd().initProto());
-    tx_relocalize_cmd().publish();
-  }
-  #endif
   #if 1
   void navigation_behavior::rotation(int direction) {
     auto msg = tx_relocalize_ctrl().initProto();
@@ -88,14 +50,49 @@ namespace isaac {
 
   inline void navigation_behavior::switchToCtrl() {
     auto msg = tx_channel_switch().initProto();
-    msg.setX(2);
+    msg.setMessage("ctrl");
     tx_channel_switch().publish();
   }
 
   inline void navigation_behavior::switchToCmd() {
     auto msg = tx_channel_switch().initProto();
-    msg.setX(1);
+    msg.setMessage("cmd");
     tx_channel_switch().publish();
+  }
+
+  Vector5d navigation_behavior::getRobotPose() {
+    bool ok;
+    Vector5d robot_pose;
+    const Pose2d world_T_robot = get_world_T_robot(getTickTime(), ok);
+    if(ok) {
+     robot_pose[0] = world_T_robot.translation(0);
+     robot_pose[1] = world_T_robot.translation(1);
+     robot_pose[2] = world_T_robot.rotation.sin();
+     robot_pose[3] = world_T_robot.rotation.cos();
+     robot_pose[4] = world_T_robot.rotation.angle();
+    }
+    return robot_pose;
+  }
+
+  void navigation_behavior::driveToPose() {
+    navigation_mode_->set_desired_behavior("navigate");
+  }
+
+  void navigation_behavior::driveToWaypoint(const std::string& waypoint) {
+    navigation_mode_->set_desired_behavior("navigate");
+    auto proto = tx_target_waypoint().initProto();
+    proto.setWaypoint(waypoint);
+    tx_target_waypoint().publish(node()->clock()->timestamp());
+  }
+
+  void navigation_behavior::stopDrive() {
+    navigation_mode_->set_desired_behavior("stop");
+  }
+
+  void navigation_behavior::sendPingMessage(const std::string& text) {
+    auto proto = tx_arrived_charge_pile().initProto();
+    proto.setMessage(text);
+    tx_arrived_charge_pile().publish();
   }
 
   void navigation_behavior::start() {
@@ -138,6 +135,7 @@ namespace isaac {
       kStateWaitForPose,
       kStateDriveToPose,
       kStateDriveToPile,
+      kStateChargeMessage,
     };
     machine_.setToString([this] (const State& state) {return state;});
     machine_.addState(kStateReLocalize,
@@ -198,12 +196,27 @@ namespace isaac {
         },
         [this] {
           switchToCmd();
-        }, 
+        },
         [this] {
           switchToCmd();
           stopDrive();
           stopwatch(kSleepHelper).stop();
           std::cout << "Arrived at posepoint~" << std::endl;
+        }
+    );
+    machine_.addState(kStateChargeMessage,
+        [this] {
+          switchToCmd();
+          stopDrive();
+          int i = 20;
+          do {
+            sendPingMessage("charge");
+            usleep(500000);
+          } while(i--);
+        },
+        [] {
+        },
+        [] {
         }
     );
     machine_.addTransition(kStateReLocalize, kStateWaitForPose,
@@ -264,10 +277,6 @@ namespace isaac {
           else {
             if (pose_goal_old_.translation.x() == pose_goal_new_.translation.x() &&
                 pose_goal_old_.translation.y() == pose_goal_new_.translation.y()) {
-              /*test*/
-              //std::cout << "false x_old: " <<  pose_goal_old_.translation.x() <<std::endl;
-              //std::cout << "false x_new: " << pose_goal_new_.translation.x() <<std::endl;
-              /*end test*/
               return false;
             }
             else {
@@ -285,17 +294,19 @@ namespace isaac {
         },
         [] {}
     );
-    machine_.addTransition(kStateDriveToPose, kStateDriveToPile
-        [this] {
+#if 0
+    machine_.addTransition(kStateDriveToPose, kStateDriveToPile,
+        [] {
         },
         [] {}
     );
-    machine_.addTransition(kStateWaitForPose, kStateDriveToPile
-        [this] {
+    machine_.addTransition(kStateWaitForPose, kStateDriveToPile,
+        [] {
         },
         [] {}
     );
-    machine_.addTransition(kStateDriveToPile, kStateWaitForPose
+#endif
+    machine_.addTransition(kStateDriveToPile, kStateWaitForPose,
         [this] {
           const auto has_arrived = getVariable(get_goto_has_arrived());
           std::cout << "has_arrived" << *has_arrived << std::endl;
@@ -307,38 +318,12 @@ namespace isaac {
         },
         [] {}
     );
+    machine_.addTransition(kStateChargeMessage, kStateWaitForPose,
+        [this] {
+          return false;
+        },
+        [] {}
+    );
   }
 
-  void navigation_behavior::driveToPose() {
-    navigation_mode_->set_desired_behavior("navigate");
-  }
-
-  void navigation_behavior::driveToWaypoint(const std::string& waypoint) {
-    navigation_mode_->set_desired_behavior("navigate");
-    auto proto = tx_target_waypoint().initProto();
-    proto.setWaypoint(waypoint);
-    tx_target_waypoint().publish(node()->clock()->timestamp());
-  }
-
-  void navigation_behavior::stopDrive() {
-    navigation_mode_->set_desired_behavior("stop");
-  }
-
-#if 0
-  bool navigation_behavior::isRequestCharge() {
-    auto proto = rx_request_charge().getProto();
-    rx_request_charge().processAllNewMessages([&](const auto proto, int64_t,int64_t){
-
-    });
-  }
-#endif
-
-  void navigation_behavior::sendChargeMessage(const std::string& user, const std::string& channel,
-      const std::string& text) {
-    auto proto = tx_arrived_charge_pile().initProto();
-    proto.setUser(user);
-    proto.setChannel(channel);
-    proto.setText(text);
-    tx_arrived_charge_pile().publish();
-  }
 } //namespace isaac

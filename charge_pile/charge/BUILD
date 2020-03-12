@@ -15,10 +15,13 @@ isaac_cc_module(
     srcs = ["charge.cpp"],
     hdrs = ["charge.hpp"],
     deps = [
-        "//engine/alice",
         "//messages",
+        "//engine/alice",
         "//engine/core/math",
+        "//engine/gems/state:io",
         "//engine/gems/coms:serial",
         "//engine/gems/state_machine",
+        "//messages/state:differential_base",
+        "//engine/gems/algorithm:string_utils",
     ],
 )

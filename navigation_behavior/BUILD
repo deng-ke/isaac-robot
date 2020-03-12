@@ -15,12 +15,12 @@ isaac_cc_module(
     srcs = ["navigation_behavior.cpp"],
     hdrs = ["navigation_behavior.hpp"],
     deps = [
-        "//engine/alice",
         "//messages",
-        "//engine/gems/algorithm:string_utils",
-        "//engine/gems/state_machine",
-        "//engine/gems/state:io",
+        "//engine/alice",
         "//engine/core/math",
+        "//engine/gems/state:io",
+        "//engine/gems/state_machine",
         "//messages/state:differential_base",
+        "//engine/gems/algorithm:string_utils",
     ],
 )
